@@ -1,75 +1,65 @@
 import React, { useState } from 'react';
-import { MockData } from './MockData';
-import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from 'react-icons/fa';
+import SliderButtons from './SliderButtons';
 import './ImageSlider.css'
+
 
 const ImageSlider = ({ slides }) => {
 
-  const length = MockData.length;
+  const length = slides.length;
   let windowWidth = window.innerWidth;
-  
-  const [current, setCurrent] = useState(0);
-  const [touchStart, setTouchStart] = React.useState(0);
-  const [touchEnd, setTouchEnd] = React.useState(0);
+
+  const [slideState, setSlide] = useState({ current: 0, touchStart: 0, touchEnd: 0 });
 
 
   const nextSlide = () => {
-    setCurrent(current === length - 1 ? 0 : current + 1);
+
+    setSlide(state => state.current === length - 1 ? { ...state, current: 0 } : { ...state, current: state.current + 1 });
+
   };
 
   const prevSlide = () => {
-    setCurrent(current === 0 ? length - 1 : current - 1);
+
+    setSlide(state => state.current === 0 ? { ...state, current: length - 1 } : { ...state, current: state.current + -1 });
+
   };
 
+
   function handleTouchStart(e) {
-    setTouchStart(e.targetTouches[0].clientX);
+    setSlide(state => ({ ...state, touchStart: e.targetTouches[0].clientX }));
   }
 
   function handleTouchMove(e) {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setSlide(state => ({ ...state, touchEnd: e.targetTouches[0].clientX }));
   }
 
   function handleTouchEnd() {
-    if (touchStart - touchEnd > 150) {
-      // do your stuff here for left swipe
-      nextSlide();
-    }
 
-    if (touchStart - touchEnd < -150) {
-      // do your stuff here for right swipe
-      prevSlide();
-    }
+    slideState.touchStart - slideState.touchEnd > 150 ? nextSlide() : prevSlide();
+
   }
 
-
-
   if (!Array.isArray(slides) || slides.length <= 0) {
+
     return null;
+
   }
 
   return (
+
     <section className='slider'>
 
-      {
-        windowWidth > 740 ?
-          <>
-            <FaArrowAltCircleLeft className='left-arrow' onClick={prevSlide} />
-            <FaArrowAltCircleRight className='right-arrow' onClick={nextSlide} />
-          </>
-          :
-          null
-      }
+      {windowWidth > 740 ? <SliderButtons handleLeftClick={prevSlide} handleRigthClick={nextSlide} /> : null}
 
-      {MockData.map((slide, index) => {
+      {slides.map((slide, index) => {
         return (
           <div
-            className={index === current ? 'slide active' : 'slide'}
+            className={index === slideState.current ? 'slide active' : 'slide'}
             key={index}
             onTouchStart={touchStartEvent => handleTouchStart(touchStartEvent)}
             onTouchMove={touchMoveEvent => handleTouchMove(touchMoveEvent)}
             onTouchEnd={() => handleTouchEnd()}
           >
-            {index === current && (
+            {index === slideState.current && (
               <img src={slide.image} alt='travel image' className='image' />
             )}
           </div>

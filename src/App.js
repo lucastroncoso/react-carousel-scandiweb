@@ -2,7 +2,7 @@ import React from "react"
 import { render } from "react-dom";
 
 import ImageSlider from "./components/ImageSlider"
-import {MockData} from "./components/MockData"
+import {MockData} from "./utils/MockData"
 
 export default function App() {
     return (
